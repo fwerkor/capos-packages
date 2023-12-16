@@ -43,6 +43,8 @@ ban_mailtopic="banIP notification"
 ban_mailprofile="ban_notify"
 ban_mailnotification="0"
 ban_reportelements="1"
+ban_remotelog="0"
+ban_remotetoken=""
 ban_nftloglevel="warn"
 ban_nftpriority="-200"
 ban_nftpolicy="memory"
@@ -194,10 +196,10 @@ f_rmpid() {
 		for pid in ${pids}; do
 			pids="${pids} $(pgrep -P "${pid}" 2>/dev/null)"
 		done
+		for pid in ${pids}; do
+			kill -INT "${pid}" >/dev/null 2>&1
+		done
 	fi
-	for pid in ${pids}; do
-		kill -INT "${pid}" >/dev/null 2>&1
-	done
 	: >"${ban_rdapfile}"
 	: >"${ban_pidfile}"
 }
@@ -1526,7 +1528,7 @@ f_monitor() {
 					ip="${ip##* }"
 					[ -n "${ip}" ] && proto="v6"
 				fi
-				if [ -n "${proto}" ] && ! "${ban_nftcmd}" get element inet banIP blocklist"${proto}" "{ ${ip} }" >/dev/null 2>&1 && ! "${ban_grepcmd}" -q "^${ip}" "${ban_allowlist}"; then
+				if [ -n "${proto}" ] && ! "${ban_nftcmd}" get element inet banIP allowlist"${proto}" "{ ${ip} }" >/dev/null 2>&1 && ! "${ban_nftcmd}" get element inet banIP blocklist"${proto}" "{ ${ip} }" >/dev/null 2>&1; then
 					f_log "info" "suspicious IP '${ip}'"
 					log_raw="$(eval ${loglimit_cmd})"
 					log_count="$(printf "%s\n" "${log_raw}" | "${ban_grepcmd}" -c "suspicious IP '${ip}'")"

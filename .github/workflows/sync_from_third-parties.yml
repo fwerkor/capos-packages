@@ -3,6 +3,9 @@ name: Sync From Third-Parties
 on:
   schedule:
     - cron: '0 0 * * *'
+  push:
+    paths:
+      - 'third-party'
 
 jobs:
   sync:

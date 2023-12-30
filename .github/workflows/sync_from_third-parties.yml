@@ -1,0 +1,63 @@
+name: Sync From Third-Parties
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout main repository
+      uses: actions/checkout@v2
+      with:
+        path: main_repo
+
+
+
+    - name: Checkout liuran001 repository
+      uses: actions/checkout@v2
+      with:
+        repository: liuran001/openwrt-packages
+        path: source_repo/liuran001
+
+    - name: Checkout fw876 repository
+      uses: actions/checkout@v2
+      with:
+        repository: fw876/helloworld
+        path: source_repo/fw876
+        
+    - name: Checkout NueXini repository
+      uses: actions/checkout@v2
+      with:
+        repository: NueXini/NueXini_Packages
+        path: source_repo/NueXini
+        
+    - name: Checkout haiibo repository
+      uses: actions/checkout@v2
+      with:
+        repository: haiibo/openwrt-packages
+        path: source_repo/haiibo
+        
+    - name: Checkout nxhack repository
+      uses: actions/checkout@v2
+      with:
+        repository: nxhack/openwrt-node-packages
+        path: source_repo/nxhack
+
+
+        
+    - name: Sync files
+      run: |
+        mkdir -p main_repo/third-party
+        rsync -a --delete source_repo/ main_repo/third-party/
+
+    - name: Commit changes
+      run: |
+        cd main_repo
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add .
+        git commit -m "Automatically synced with third-parties" || echo "No changes to commit"
+        git push

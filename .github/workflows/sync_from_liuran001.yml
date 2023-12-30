@@ -1,0 +1,35 @@
+name: Sync From liuran001
+
+on:
+  schedule:
+    - cron: '10 0 * * *'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout main repository
+      uses: actions/checkout@v2
+      with:
+        path: main_repo
+
+    - name: Checkout source repository
+      uses: actions/checkout@v2
+      with:
+        repository: liuran001/openwrt-packages
+        path: source_repo
+
+    - name: Sync files
+      run: |
+        mkdir -p main_repo/third-party/liuran001
+        rsync -a --delete source_repo/ main_repo/third-party/liuran001/
+
+    - name: Commit changes
+      run: |
+        cd main_repo
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add .
+        git commit -m "Synced with liuran001/openwrt-packages" || echo "No changes to commit"
+        git push
